@@ -5,6 +5,10 @@ function commentFunctions(){
     const subcommentContainer = comment.getElementsByTagName("ul")[0]
     const subcommentData = []
 
+    if(subcommentContainer === undefined){
+      continue
+    }
+
     for (const subcomment of subcommentContainer.children){
       if(subcomment.getElementsByClassName("CommentVoteFrame").length > 0){
         const subcommentId = subcomment.getElementsByClassName("CommentVoteFrame")[0].getAttribute("commentid")
@@ -87,15 +91,66 @@ function commentFunctions(){
 
         subcommentContainer.replaceChildren(...(subcommentData.map(elem => elem.subcomment)))
       }
-    });
+    })
+
+    const collapseImg = document.createElement("img")
+    collapseImg.src = chrome.runtime.getURL('assets/chevron-down.svg')
+
+    const collapseButton = document.createElement("button")
+    collapseButton.style.all = "unset"
+    collapseButton.style.cursor = "pointer"
+    collapseButton.style.width = "25px"
+    collapseButton.style.height = "25px"
+    collapseButton.dataset.show = "1"
+
+    collapseButton.appendChild(collapseImg)
+
+    collapseButton.addEventListener("click", function(){
+      const collapseState = sortButton.dataset.show
+
+      if(collapseState == "0"){
+        collapseImg.src = chrome.runtime.getURL('assets/chevron-down.svg')
+        sortButton.dataset.show = "1"
+
+        subcommentContainer.style.removeProperty("display")
+      }
+      else{
+        collapseImg.src = chrome.runtime.getURL('assets/chevron-right.svg')
+        sortButton.dataset.show = "0"
+
+        subcommentContainer.style.display = "none"
+      }
+    })
+
+    const messageImg = document.createElement("img")
+    messageImg.src = chrome.runtime.getURL('assets/envelope.svg')
+
+    const messageButton = document.createElement("button")
+    messageButton.style.all = "unset"
+    messageButton.style.cursor = "pointer"
+    messageButton.style.width = "25px"
+    messageButton.style.height = "25px"
+
+    messageButton.appendChild(messageImg)
+
+    const userId = comment.getElementsByClassName("avatar")[0].firstElementChild.getAttribute("href").split("/").pop()
+
+    messageButton.addEventListener("click", function(){
+      window.location.href = "https://codeforces.com/usertalk?other=" + userId
+    })
 
     const newButtons = document.createElement("div")
-    newButtons.style.marginBottom = "10px"
+    newButtons.style.position = "relative"
+    newButtons.style.zIndex = "1"
+    newButtons.style.marginBottom = "8px"
     newButtons.style.display = "flex"
+    newButtons.style.gap = "5px"
     newButtons.style.justifyContent = "center"
     newButtons.style.alignItems = "center"
 
     newButtons.appendChild(sortButton)
+    newButtons.appendChild(collapseButton)
+    newButtons.appendChild(messageButton)
 
     comment.firstElementChild.firstElementChild.firstElementChild.firstElementChild.children[0].insertAdjacentElement("afterend", newButtons)
   }

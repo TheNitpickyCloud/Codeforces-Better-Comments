@@ -1,10 +1,11 @@
 {
     "manifest_version": 3,
     "name": "Codeforces Better Comments",
-    "description": "A simple extension to improve your codeforces experience!",
-    "version": "0.0.1",
+    "description": "A simple extension to improve your codeforces comments experience!",
+    "version": "1.0.0",
     "icons": {
         "16": "assets/logo/logo-16.png",
+        "32": "assets/logo/logo-32.png",
         "48": "assets/logo/logo-48.png",
         "128": "assets/logo/logo-128.png"
     },

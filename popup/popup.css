@@ -1,6 +1,6 @@
 body {
   width: 325px;
-  height: 240px;
+  height: 255px;
 }
 
 .info {
@@ -25,8 +25,15 @@ body {
   border-bottom: 1px solid darkgray;
 }
 
+.headingImg {
+  padding-bottom: 5px;
+}
+
 .heading {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
   font-size: large;
   margin-top: 15px;
   margin-bottom: 20px;

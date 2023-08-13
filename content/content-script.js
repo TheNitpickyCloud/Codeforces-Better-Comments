@@ -133,9 +133,8 @@ function commentFunctions(){
 
     messageButton.appendChild(messageImg)
 
-    const userId = comment.getElementsByClassName("avatar")[0].firstElementChild.getAttribute("href").split("/").pop()
-
     messageButton.addEventListener("click", function(){
+      const userId = comment.getElementsByClassName("avatar")[0].firstElementChild.getAttribute("href").split("/").pop()
       window.location.href = "https://codeforces.com/usertalk?other=" + userId
     })
 

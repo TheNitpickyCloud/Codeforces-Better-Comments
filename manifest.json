@@ -13,7 +13,9 @@
         "default_title": "Codeforces Better Comments",
         "default_popup": "popup/popup.html"
     },
-    "permissions": [],
+    "permissions": [
+        "storage"
+    ],
     "host_permissions": [
         "*://*/*"
     ],

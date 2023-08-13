@@ -148,9 +148,21 @@ function commentFunctions(){
     newButtons.style.justifyContent = "center"
     newButtons.style.alignItems = "center"
 
-    newButtons.appendChild(sortButton)
-    newButtons.appendChild(collapseButton)
-    newButtons.appendChild(messageButton)
+    chrome.storage.sync.get({ localCommentSort: true }).then((result) => {
+      if(result.localCommentSort === true){
+        newButtons.appendChild(sortButton)
+      }
+    })
+    chrome.storage.sync.get({ collapseComment: true }).then((result) => {
+      if(result.collapseComment === true){
+        newButtons.appendChild(collapseButton)
+      }
+    })
+    chrome.storage.sync.get({ messageCommentAuthor: true }).then((result) => {
+      if(result.messageCommentAuthor === true){
+        newButtons.appendChild(messageButton)
+      }
+    })
 
     comment.firstElementChild.firstElementChild.firstElementChild.firstElementChild.children[0].insertAdjacentElement("afterend", newButtons)
   }
@@ -279,7 +291,11 @@ function globalFunctions(){
   newButtons.style.justifyContent = "left"
   newButtons.style.alignItems = "center"
 
-  newButtons.appendChild(sortButton)
+  chrome.storage.sync.get({ globalCommentSort: true }).then((result) => {
+    if(result.globalCommentSort === true){
+      newButtons.appendChild(sortButton)
+    }
+  })
 
   comments.firstElementChild.firstElementChild.children[1].insertAdjacentElement("afterend", newButtons)
 }

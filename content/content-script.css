@@ -1,0 +1,46 @@
+.newGlobalButtons {
+  display: inline-flex;
+  margin-left: 15px;
+  position: relative;
+  top: 0.4em;
+  justify-content: left;
+  align-items: center;
+}
+
+.newLocalButtons {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
+
+.globalSortButton {
+  all: unset;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+}
+
+.sortButton {
+  all: unset;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+}
+
+.collapseButton {
+  all: unset;
+  cursor: pointer;
+  width: 25px;
+  height: 25px;
+}
+
+.messageButton {
+  all: unset;
+  cursor: pointer;
+  width: 25px;
+  height: 25px;
+}

@@ -22,10 +22,7 @@ function commentFunctions(){
     sortImg.style.opacity = "0.25"
 
     const sortButton = document.createElement("button")
-    sortButton.style.all = "unset"
-    sortButton.style.cursor = "pointer"
-    sortButton.style.width = "30px"
-    sortButton.style.height = "30px"
+    sortButton.classList.add("sortButton")
     sortButton.dataset.sort = "0"
 
     sortButton.appendChild(sortImg)
@@ -34,27 +31,9 @@ function commentFunctions(){
       const sortState = sortButton.dataset.sort
 
       if(sortState == "0"){
+        sortImg.src = chrome.runtime.getURL("assets/arrow-trending-down.svg")
         sortImg.style.opacity = "1"
         sortButton.dataset.sort = "1"
-
-        // sort in ascending order
-        subcommentData.sort((a, b) => {
-          if(parseInt(a.subcommentRating) < parseInt(b.subcommentRating)){
-            return -1
-          }
-          else if(parseInt(a.subcommentRating) == parseInt(b.subcommentRating)){
-            return 0
-          }
-          else{
-            return 1
-          }
-        })
-
-        subcommentContainer.replaceChildren(...(subcommentData.map(elem => elem.subcomment)))
-      }
-      else if(sortState == "1"){
-        sortImg.src = chrome.runtime.getURL("assets/arrow-trending-down.svg")
-        sortButton.dataset.sort = "2"
 
         // sort in descending order
         subcommentData.sort((a, b) => {
@@ -71,8 +50,26 @@ function commentFunctions(){
 
         subcommentContainer.replaceChildren(...(subcommentData.map(elem => elem.subcomment)))
       }
-      else{
+      else if(sortState == "1"){
         sortImg.src = chrome.runtime.getURL("assets/arrow-trending-up.svg")
+        sortButton.dataset.sort = "2"
+
+        // sort in ascending order
+        subcommentData.sort((a, b) => {
+          if(parseInt(a.subcommentRating) < parseInt(b.subcommentRating)){
+            return -1
+          }
+          else if(parseInt(a.subcommentRating) == parseInt(b.subcommentRating)){
+            return 0
+          }
+          else{
+            return 1
+          }
+        })
+
+        subcommentContainer.replaceChildren(...(subcommentData.map(elem => elem.subcomment)))
+      }
+      else{
         sortImg.style.opacity = "0.25"
         sortButton.dataset.sort = "0"
 
@@ -97,10 +94,7 @@ function commentFunctions(){
     collapseImg.src = chrome.runtime.getURL('assets/chevron-down.svg')
 
     const collapseButton = document.createElement("button")
-    collapseButton.style.all = "unset"
-    collapseButton.style.cursor = "pointer"
-    collapseButton.style.width = "25px"
-    collapseButton.style.height = "25px"
+    collapseButton.classList.add("collapseButton")
     collapseButton.dataset.show = "1"
 
     collapseButton.appendChild(collapseImg)
@@ -126,10 +120,7 @@ function commentFunctions(){
     messageImg.src = chrome.runtime.getURL('assets/envelope.svg')
 
     const messageButton = document.createElement("button")
-    messageButton.style.all = "unset"
-    messageButton.style.cursor = "pointer"
-    messageButton.style.width = "25px"
-    messageButton.style.height = "25px"
+    messageButton.classList.add("messageButton")
 
     messageButton.appendChild(messageImg)
 
@@ -139,24 +130,21 @@ function commentFunctions(){
     })
 
     const newButtons = document.createElement("div")
-    newButtons.style.position = "relative"
-    newButtons.style.zIndex = "1"
-    newButtons.style.marginBottom = "8px"
-    newButtons.style.display = "flex"
-    newButtons.style.gap = "5px"
-    newButtons.style.justifyContent = "center"
-    newButtons.style.alignItems = "center"
+    newButtons.classList.add("newLocalButtons")
 
-    chrome.storage.sync.get({ localCommentSort: true }).then((result) => {
-      if(result.localCommentSort === true){
-        newButtons.appendChild(sortButton)
-      }
-    })
-    chrome.storage.sync.get({ collapseComment: true }).then((result) => {
-      if(result.collapseComment === true){
-        newButtons.appendChild(collapseButton)
-      }
-    })
+    if(subcommentData.length > 0){
+      chrome.storage.sync.get({ localCommentSort: true }).then((result) => {
+        if(result.localCommentSort === true){
+          newButtons.appendChild(sortButton)
+        }
+      })
+      chrome.storage.sync.get({ collapseComment: true }).then((result) => {
+        if(result.collapseComment === true){
+          newButtons.appendChild(collapseButton)
+        }
+      })
+    }
+
     chrome.storage.sync.get({ messageCommentAuthor: true }).then((result) => {
       if(result.messageCommentAuthor === true){
         newButtons.appendChild(messageButton)
@@ -184,10 +172,7 @@ function globalFunctions(){
   sortImg.style.opacity = "0.25"
 
   const sortButton = document.createElement("button")
-  sortButton.style.all = "unset"
-  sortButton.style.cursor = "pointer"
-  sortButton.style.width = "40px"
-  sortButton.style.height = "40px"
+  sortButton.classList.add("globalSortButton")
   sortButton.dataset.sort = "0"
 
   sortButton.appendChild(sortImg)
@@ -196,36 +181,9 @@ function globalFunctions(){
     const sortState = sortButton.dataset.sort
 
     if(sortState == "0"){
+      sortImg.src = chrome.runtime.getURL("assets/arrow-trending-down.svg")
       sortImg.style.opacity = "1"
       sortButton.dataset.sort = "1"
-
-      // sort in ascending order
-      commentData.sort((a, b) => {
-        if(parseInt(a.commentRating) < parseInt(b.commentRating)){
-          return -1
-        }
-        else if(parseInt(a.commentRating) == parseInt(b.commentRating)){
-          return 0
-        }
-        else{
-          return 1
-        }
-      })
-
-      // need to reverse cause of how insertAdjacentElement works
-      commentData.reverse()
-
-      while(comments.querySelectorAll('div.comment').length > 0){
-        comments.querySelectorAll('div.comment')[0].remove()
-      }
-
-      for (const comment of commentData){
-        comments.children[0].insertAdjacentElement("afterend", comment.comment)
-      }
-    }
-    else if(sortState == "1"){
-      sortImg.src = chrome.runtime.getURL("assets/arrow-trending-down.svg")
-      sortButton.dataset.sort = "2"
 
       // sort in descending order
       commentData.sort((a, b) => {
@@ -251,8 +209,35 @@ function globalFunctions(){
         comments.children[0].insertAdjacentElement("afterend", comment.comment)
       }
     }
-    else{
+    else if(sortState == "1"){
       sortImg.src = chrome.runtime.getURL("assets/arrow-trending-up.svg")
+      sortButton.dataset.sort = "2"
+
+      // sort in ascending order
+      commentData.sort((a, b) => {
+        if(parseInt(a.commentRating) < parseInt(b.commentRating)){
+          return -1
+        }
+        else if(parseInt(a.commentRating) == parseInt(b.commentRating)){
+          return 0
+        }
+        else{
+          return 1
+        }
+      })
+
+      // need to reverse cause of how insertAdjacentElement works
+      commentData.reverse()
+
+      while(comments.querySelectorAll('div.comment').length > 0){
+        comments.querySelectorAll('div.comment')[0].remove()
+      }
+
+      for (const comment of commentData){
+        comments.children[0].insertAdjacentElement("afterend", comment.comment)
+      }
+    }
+    else{
       sortImg.style.opacity = "0.25"
       sortButton.dataset.sort = "0"
 
@@ -283,18 +268,15 @@ function globalFunctions(){
   });
 
   const newButtons = document.createElement("div")
-  newButtons.style.display = "inline-flex"
-  newButtons.style.marginLeft = "15px"
-  newButtons.style.position = "relative"
-  newButtons.style.top = "0.4em"
-  newButtons.style.justifyContent = "left"
-  newButtons.style.alignItems = "center"
+  newButtons.classList.add("newGlobalButtons")
 
-  chrome.storage.sync.get({ globalCommentSort: true }).then((result) => {
-    if(result.globalCommentSort === true){
-      newButtons.appendChild(sortButton)
-    }
-  })
+  if(commentData.length > 0){
+    chrome.storage.sync.get({ globalCommentSort: true }).then((result) => {
+      if(result.globalCommentSort === true){
+        newButtons.appendChild(sortButton)
+      }
+    })
+  }
 
   comments.firstElementChild.firstElementChild.children[1].insertAdjacentElement("afterend", newButtons)
 }

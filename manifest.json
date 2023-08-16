@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Codeforces Better Comments",
     "description": "A simple extension to improve your codeforces comments experience!",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "icons": {
         "16": "assets/logo/logo-16.png",
         "32": "assets/logo/logo-32.png",
@@ -25,6 +25,7 @@
         "service_worker": "background/service-worker.js"
     },
     "content_scripts": [{
+        "css": ["content/content-script.css"],
         "js": ["content/content-script.js"],
         "matches": ["https://codeforces.com/blog/entry/*"]
     }]

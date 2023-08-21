@@ -44,10 +44,22 @@ document.addEventListener("DOMContentLoaded", () => {
     filterUserRatingInput.value = result.filterUserRating
   })
   filterUserRatingInput.addEventListener("input", (e) => {
-    let numberRegex = /^[0-9]+$/
+    const numberRegex = /^[0-9]+$/
     if(numberRegex.test(e.target.value)){
       filterUserRatingInput.value = e.target.value
       chrome.storage.sync.set({ filterUserRating: e.target.value })
+    }
+  })
+
+  let filterCommentRatingInput = document.getElementById("filterCommentsBelowCommentRating")
+  chrome.storage.sync.get({ filterCommentRating: -1000 }).then((result) => {
+    filterCommentRatingInput.value = result.filterCommentRating
+  })
+  filterCommentRatingInput.addEventListener("input", (e) => {
+    const numberRegex = /^[-+]?[0-9]+$/
+    if(numberRegex.test(e.target.value)){
+      filterCommentRatingInput.value = e.target.value
+      chrome.storage.sync.set({ filterCommentRating: e.target.value })
     }
   })
 })

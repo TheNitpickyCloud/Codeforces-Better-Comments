@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     filterUserRatingInput.value = result.filterUserRating
   })
   filterUserRatingInput.addEventListener("input", (e) => {
-    const numberRegex = /^[0-9]+$/
+    const numberRegex = /^[-+]?[0-9]+$/
     if(numberRegex.test(e.target.value)){
       filterUserRatingInput.value = e.target.value
       chrome.storage.sync.set({ filterUserRating: e.target.value })

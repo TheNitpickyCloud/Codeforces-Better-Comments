@@ -1,6 +1,6 @@
 body {
-  width: 325px;
-  height: 255px;
+  width: 380px;
+  height: 288px;
 }
 
 .info {
@@ -52,6 +52,25 @@ body {
 
 .optionText {
   font-size: larger;
+}
+
+.ratingbox {
+  text-align: center;
+  width: 34px;
+  height: 8px;
+  padding: 7px;
+  border: solid 1.5px black;
+  border-radius: 10px;
+}
+
+.ratingbox::-webkit-outer-spin-button,
+.ratingbox::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
 }
 
 .switch {

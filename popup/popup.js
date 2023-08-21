@@ -38,4 +38,16 @@ document.addEventListener("DOMContentLoaded", () => {
       chrome.storage.sync.set({ messageCommentAuthor: !result.messageCommentAuthor })
     })
   })
+
+  let filterUserRatingInput = document.getElementById("filterCommentsBelowUserRating")
+  chrome.storage.sync.get({ filterUserRating: 0 }).then((result) => {
+    filterUserRatingInput.value = result.filterUserRating
+  })
+  filterUserRatingInput.addEventListener("input", (e) => {
+    let numberRegex = /^[0-9]+$/
+    if(numberRegex.test(e.target.value)){
+      filterUserRatingInput.value = e.target.value
+      chrome.storage.sync.set({ filterUserRating: e.target.value })
+    }
+  })
 })

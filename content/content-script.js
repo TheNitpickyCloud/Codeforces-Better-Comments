@@ -1,158 +1,191 @@
 function commentFunctions(){
-  const comments = document.querySelectorAll("div.comment")
+  const comments = document.querySelectorAll("div.comment:not(div.comment-reply-prototype)")
 
-  for (const comment of comments){
-    const subcommentContainer = comment.getElementsByTagName("ul")[0]
-    const subcommentData = []
-
-    if(subcommentContainer === undefined){
-      continue
-    }
-
-    for (const subcomment of subcommentContainer.children){
-      if(subcomment.getElementsByClassName("CommentVoteFrame").length > 0){
-        const subcommentId = subcomment.getElementsByClassName("CommentVoteFrame")[0].getAttribute("commentid")
-        const subcommentRating = subcomment.getElementsByClassName("CommentVoteFrame")[0].getAttribute("data-commentrating")
-        subcommentData.push({subcomment: subcomment, subcommentId: subcommentId, subcommentRating: subcommentRating})
-      }
-    }
-
-    const sortImg = document.createElement("img")
-    sortImg.src = chrome.runtime.getURL("assets/arrow-trending-up.svg")
-    sortImg.style.opacity = "0.25"
-
-    const sortButton = document.createElement("button")
-    sortButton.classList.add("sortButton")
-    sortButton.dataset.sort = "0"
-
-    sortButton.appendChild(sortImg)
-    
-    sortButton.addEventListener("click", function(){
-      const sortState = sortButton.dataset.sort
-
-      if(sortState == "0"){
-        sortImg.src = chrome.runtime.getURL("assets/arrow-trending-down.svg")
-        sortImg.style.opacity = "1"
-        sortButton.dataset.sort = "1"
-
-        // sort in descending order
-        subcommentData.sort((a, b) => {
-          if(parseInt(a.subcommentRating) < parseInt(b.subcommentRating)){
-            return 1
-          }
-          else if(parseInt(a.subcommentRating) == parseInt(b.subcommentRating)){
-            return 0
-          }
-          else{
-            return -1
-          }
-        })
-
-        subcommentContainer.replaceChildren(...(subcommentData.map(elem => elem.subcomment)))
-      }
-      else if(sortState == "1"){
-        sortImg.src = chrome.runtime.getURL("assets/arrow-trending-up.svg")
-        sortButton.dataset.sort = "2"
-
-        // sort in ascending order
-        subcommentData.sort((a, b) => {
-          if(parseInt(a.subcommentRating) < parseInt(b.subcommentRating)){
-            return -1
-          }
-          else if(parseInt(a.subcommentRating) == parseInt(b.subcommentRating)){
-            return 0
-          }
-          else{
-            return 1
-          }
-        })
-
-        subcommentContainer.replaceChildren(...(subcommentData.map(elem => elem.subcomment)))
-      }
-      else{
-        sortImg.style.opacity = "0.25"
-        sortButton.dataset.sort = "0"
-
-        // reset sort (ascending commentid)
-        subcommentData.sort((a, b) => {
-          if(parseInt(a.subcommentId) < parseInt(b.subcommentId)){
-            return -1
-          }
-          else if(parseInt(a.subcommentId) == parseInt(b.subcommentId)){
-            return 0
-          }
-          else{
-            return 1
-          }
-        })
-
-        subcommentContainer.replaceChildren(...(subcommentData.map(elem => elem.subcomment)))
-      }
-    })
-
-    const collapseImg = document.createElement("img")
-    collapseImg.src = chrome.runtime.getURL('assets/chevron-down.svg')
-
-    const collapseButton = document.createElement("button")
-    collapseButton.classList.add("collapseButton")
-    collapseButton.dataset.show = "1"
-
-    collapseButton.appendChild(collapseImg)
-
-    collapseButton.addEventListener("click", function(){
-      const collapseState = sortButton.dataset.show
-
-      if(collapseState == "0"){
-        collapseImg.src = chrome.runtime.getURL('assets/chevron-down.svg')
-        sortButton.dataset.show = "1"
-
-        subcommentContainer.style.removeProperty("display")
-      }
-      else{
-        collapseImg.src = chrome.runtime.getURL('assets/chevron-right.svg')
-        sortButton.dataset.show = "0"
-
-        subcommentContainer.style.display = "none"
-      }
-    })
-
-    const messageImg = document.createElement("img")
-    messageImg.src = chrome.runtime.getURL('assets/envelope.svg')
-
-    const messageButton = document.createElement("button")
-    messageButton.classList.add("messageButton")
-
-    messageButton.appendChild(messageImg)
-
-    messageButton.addEventListener("click", function(){
-      const userId = comment.getElementsByClassName("avatar")[0].firstElementChild.getAttribute("href").split("/").pop()
-      window.location.href = "https://codeforces.com/usertalk?other=" + userId
-    })
-
-    const newButtons = document.createElement("div")
-    newButtons.classList.add("newLocalButtons")
-
-    if(subcommentData.length > 0){
-      chrome.storage.sync.get({ localCommentSort: true }).then((result) => {
-        if(result.localCommentSort === true){
-          newButtons.appendChild(sortButton)
-        }
-      })
-      chrome.storage.sync.get({ collapseComment: true }).then((result) => {
-        if(result.collapseComment === true){
-          newButtons.appendChild(collapseButton)
-        }
-      })
-    }
-
-    chrome.storage.sync.get({ messageCommentAuthor: true }).then((result) => {
-      if(result.messageCommentAuthor === true){
-        newButtons.appendChild(messageButton)
-      }
-    })
-
-    comment.firstElementChild.firstElementChild.firstElementChild.firstElementChild.children[0].insertAdjacentElement("afterend", newButtons)
+  let userHandles = ""
+  const userRatings = {}
+  for(const comment of comments){
+    const userId = comment.getElementsByClassName("avatar")[0].firstElementChild.getAttribute("href").split("/").pop()
+    userHandles += userId + ";"
   }
+
+  fetch("https://codeforces.com/api/user.info?handles=" + userHandles).then(response => response.json()).then(result => {
+    if(result.status == "OK"){
+      for(const user of result.result){
+        userRatings[user.handle] = user.rating
+      }
+    }
+  })
+  .finally(() => {
+    chrome.storage.sync.get({ filterUserRating: 0 }).then((result) => {
+      for (const comment of comments){
+        const userId = comment.getElementsByClassName("avatar")[0].firstElementChild.getAttribute("href").split("/").pop()
+        let skippedComment = false
+
+        if(parseInt(userRatings[userId]) < parseInt(result.filterUserRating)){
+          skippedComment = true
+        }
+
+        if(skippedComment){
+          comment.style.display = "none"
+          continue
+        }
+        else{
+          comment.style.removeProperty("display")
+        }
+
+        const subcommentContainer = comment.getElementsByTagName("ul")[0]
+        const subcommentData = []
+    
+        if(subcommentContainer === undefined){
+          continue
+        }
+    
+        for (const subcomment of subcommentContainer.children){
+          if(subcomment.getElementsByClassName("CommentVoteFrame").length > 0){
+            const subcommentId = subcomment.getElementsByClassName("CommentVoteFrame")[0].getAttribute("commentid")
+            const subcommentRating = subcomment.getElementsByClassName("CommentVoteFrame")[0].getAttribute("data-commentrating")
+            subcommentData.push({subcomment: subcomment, subcommentId: subcommentId, subcommentRating: subcommentRating})
+          }
+        }
+    
+        const sortImg = document.createElement("img")
+        sortImg.src = chrome.runtime.getURL("assets/arrow-trending-up.svg")
+        sortImg.style.opacity = "0.25"
+    
+        const sortButton = document.createElement("button")
+        sortButton.classList.add("sortButton")
+        sortButton.dataset.sort = "0"
+    
+        sortButton.appendChild(sortImg)
+        
+        sortButton.addEventListener("click", function(){
+          const sortState = sortButton.dataset.sort
+    
+          if(sortState == "0"){
+            sortImg.src = chrome.runtime.getURL("assets/arrow-trending-down.svg")
+            sortImg.style.opacity = "1"
+            sortButton.dataset.sort = "1"
+    
+            // sort in descending order
+            subcommentData.sort((a, b) => {
+              if(parseInt(a.subcommentRating) < parseInt(b.subcommentRating)){
+                return 1
+              }
+              else if(parseInt(a.subcommentRating) == parseInt(b.subcommentRating)){
+                return 0
+              }
+              else{
+                return -1
+              }
+            })
+    
+            subcommentContainer.replaceChildren(...(subcommentData.map(elem => elem.subcomment)))
+          }
+          else if(sortState == "1"){
+            sortImg.src = chrome.runtime.getURL("assets/arrow-trending-up.svg")
+            sortButton.dataset.sort = "2"
+    
+            // sort in ascending order
+            subcommentData.sort((a, b) => {
+              if(parseInt(a.subcommentRating) < parseInt(b.subcommentRating)){
+                return -1
+              }
+              else if(parseInt(a.subcommentRating) == parseInt(b.subcommentRating)){
+                return 0
+              }
+              else{
+                return 1
+              }
+            })
+    
+            subcommentContainer.replaceChildren(...(subcommentData.map(elem => elem.subcomment)))
+          }
+          else{
+            sortImg.style.opacity = "0.25"
+            sortButton.dataset.sort = "0"
+    
+            // reset sort (ascending commentid)
+            subcommentData.sort((a, b) => {
+              if(parseInt(a.subcommentId) < parseInt(b.subcommentId)){
+                return -1
+              }
+              else if(parseInt(a.subcommentId) == parseInt(b.subcommentId)){
+                return 0
+              }
+              else{
+                return 1
+              }
+            })
+    
+            subcommentContainer.replaceChildren(...(subcommentData.map(elem => elem.subcomment)))
+          }
+        })
+    
+        const collapseImg = document.createElement("img")
+        collapseImg.src = chrome.runtime.getURL('assets/chevron-down.svg')
+    
+        const collapseButton = document.createElement("button")
+        collapseButton.classList.add("collapseButton")
+        collapseButton.dataset.show = "1"
+    
+        collapseButton.appendChild(collapseImg)
+    
+        collapseButton.addEventListener("click", function(){
+          const collapseState = sortButton.dataset.show
+    
+          if(collapseState == "0"){
+            collapseImg.src = chrome.runtime.getURL('assets/chevron-down.svg')
+            sortButton.dataset.show = "1"
+    
+            subcommentContainer.style.removeProperty("display")
+          }
+          else{
+            collapseImg.src = chrome.runtime.getURL('assets/chevron-right.svg')
+            sortButton.dataset.show = "0"
+    
+            subcommentContainer.style.display = "none"
+          }
+        })
+    
+        const messageImg = document.createElement("img")
+        messageImg.src = chrome.runtime.getURL('assets/envelope.svg')
+    
+        const messageButton = document.createElement("button")
+        messageButton.classList.add("messageButton")
+    
+        messageButton.appendChild(messageImg)
+    
+        messageButton.addEventListener("click", function(){
+          const userId = comment.getElementsByClassName("avatar")[0].firstElementChild.getAttribute("href").split("/").pop()
+          window.location.href = "https://codeforces.com/usertalk?other=" + userId
+        })
+    
+        const newButtons = document.createElement("div")
+        newButtons.classList.add("newLocalButtons")
+    
+        if(subcommentData.length > 0){
+          chrome.storage.sync.get({ localCommentSort: true }).then((result) => {
+            if(result.localCommentSort === true){
+              newButtons.appendChild(sortButton)
+            }
+          })
+          chrome.storage.sync.get({ collapseComment: true }).then((result) => {
+            if(result.collapseComment === true){
+              newButtons.appendChild(collapseButton)
+            }
+          })
+        }
+    
+        chrome.storage.sync.get({ messageCommentAuthor: true }).then((result) => {
+          if(result.messageCommentAuthor === true){
+            newButtons.appendChild(messageButton)
+          }
+        })
+    
+        comment.firstElementChild.firstElementChild.firstElementChild.firstElementChild.children[0].insertAdjacentElement("afterend", newButtons)
+      }
+    })
+  })
 }
 
 function globalFunctions(){

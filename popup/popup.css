@@ -1,6 +1,6 @@
 body {
-  width: 400px;
-  height: 318px;
+  width: 450px;
+  height: 320px;
 }
 
 .info {
@@ -56,7 +56,7 @@ body {
 
 .ratingbox {
   text-align: center;
-  width: 34px;
+  width: 50px;
   height: 8px;
   padding: 7px;
   border: solid 1.5px black;

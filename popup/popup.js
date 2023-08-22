@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   })
 
   let filterCommentRatingInput = document.getElementById("filterCommentsBelowCommentRating")
-  chrome.storage.sync.get({ filterCommentRating: -1000 }).then((result) => {
+  chrome.storage.sync.get({ filterCommentRating: -100000 }).then((result) => {
     filterCommentRatingInput.value = result.filterCommentRating
   })
   filterCommentRatingInput.addEventListener("input", (e) => {

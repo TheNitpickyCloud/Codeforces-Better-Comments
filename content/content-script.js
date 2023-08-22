@@ -11,13 +11,20 @@ function commentFunctions(){
   fetch("https://codeforces.com/api/user.info?handles=" + userHandles).then(response => response.json()).then(result => {
     if(result.status == "OK"){
       for(const user of result.result){
-        userRatings[user.handle] = user.rating
+        if("rating" in user){
+          userRatings[user.handle] = user.rating
+        }
+        else{
+          userRatings[user.handle] = 0
+        }
       }
     }
   })
   .finally(() => {
     chrome.storage.sync.get({ filterUserRating: 0 }).then((userRatingResult) => {
-      chrome.storage.sync.get({ filterCommentRating: -1000 }).then((commentRatingResult) => {
+      chrome.storage.sync.get({ filterCommentRating: -100000 }).then((commentRatingResult) => {
+        let displayedComments = 0
+
         for (const comment of comments){
           const userId = comment.getElementsByClassName("avatar")[0].firstElementChild.getAttribute("href").split("/").pop()
           const commentRating = comment.getElementsByClassName("CommentVoteFrame")[0].getAttribute("data-commentrating")
@@ -33,6 +40,7 @@ function commentFunctions(){
             continue
           }
           else{
+            displayedComments += 1
             comment.style.removeProperty("display")
           }
 
@@ -187,6 +195,9 @@ function commentFunctions(){
       
           comment.firstElementChild.firstElementChild.firstElementChild.firstElementChild.children[0].insertAdjacentElement("afterend", newButtons)
         }
+
+        const commentsTitle = document.querySelector('[name="comments"]')
+        commentsTitle.innerText = commentsTitle.innerText.replace("(", "(" + displayedComments.toString() + "/")
       })
     })
   })

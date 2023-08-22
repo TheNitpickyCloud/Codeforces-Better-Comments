@@ -197,7 +197,8 @@ function commentFunctions(){
         }
 
         const commentsTitle = document.querySelector('[name="comments"]')
-        commentsTitle.innerText = commentsTitle.innerText.replace("(", "(" + displayedComments.toString() + "/")
+        // technical issue, hidden subcomments are counted
+        // commentsTitle.innerText = commentsTitle.innerText.replace("(", "(" + displayedComments.toString() + "/")
       })
     })
   })

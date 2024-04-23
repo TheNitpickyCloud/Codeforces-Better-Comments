@@ -29,6 +29,16 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   })
 
+  let collapseCommentByDefaultButton = document.getElementById("collapseCommentByDefault")
+  chrome.storage.sync.get({ collapseCommentByDefault: false }).then((result) => {
+    collapseCommentByDefaultButton.checked = result.collapseCommentByDefault
+  })
+  collapseCommentByDefaultButton.addEventListener("change", () => {
+    chrome.storage.sync.get({ collapseCommentByDefault: false }).then((result) => {
+      chrome.storage.sync.set({ collapseCommentByDefault: !result.collapseCommentByDefault })
+    })
+  })
+
   let messageCommentAuthorButton = document.getElementById("messageCommentAuthor")
   chrome.storage.sync.get({ messageCommentAuthor: true }).then((result) => {
     messageCommentAuthorButton.checked = result.messageCommentAuthor

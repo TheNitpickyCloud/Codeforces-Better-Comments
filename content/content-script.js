@@ -185,6 +185,14 @@ function commentFunctions(){
                 newButtons.appendChild(collapseButton)
               }
             })
+            chrome.storage.sync.get({ collapseCommentByDefault: false }).then((result) => {
+              if(result.collapseCommentByDefault === true){
+                collapseImg.src = chrome.runtime.getURL('assets/chevron-right.svg')
+                sortButton.dataset.show = "0"
+        
+                subcommentContainer.style.display = "none"
+              }
+            })
           }
       
           chrome.storage.sync.get({ messageCommentAuthor: true }).then((result) => {
